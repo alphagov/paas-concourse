@@ -78,3 +78,8 @@ properties:
     description: |
       Environment name to specify for errors emitted to Yeller.
     default: ""
+
+  tsa_atc_address:
+    description: |
+      atc server connection address
+    default: "atc.service.dc1.consul:8080"
