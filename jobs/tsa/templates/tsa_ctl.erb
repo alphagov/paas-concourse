@@ -10,7 +10,12 @@ set -e
     Shellwords.shellescape(x)
   end
 
-  atc = link("atc")
+  if !spec.address or spec.address == ""
+    peer_ip = "127.0.0.1"
+  else
+    peer_ip = spec.address
+  end
+
 %>
 
 RUN_DIR=/var/vcap/sys/run/tsa
@@ -51,10 +56,15 @@ EOF
 
     # TODO: TSA should support multiple ATCs
     exec chpst -u vcap:vcap /var/vcap/packages/tsa/bin/tsa \
+      <% if if_link("atc") %>
+      <% atc = link("atc") %>
       <% atc.instances.each do |instance| %> \
       --atc-url <%= "http://#{instance.address}:#{atc.p("bind_port")}" %> \
       <% end %> \
-      --peer-ip <%= spec.address %> \
+      <% else %> \
+      --atc-url <%= p("tsa_atc_address") %> \
+      <% end %> \
+      --peer-ip <%= peer_ip %> \
       --bind-port <%= p("bind_port") %> \
       <% if p("host_key") != "" %> \
       --host-key /var/vcap/jobs/tsa/config/host_key \
